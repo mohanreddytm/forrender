@@ -22,7 +22,7 @@ const initializeDbAndServer = async () => {
       filename: dbPath,
       driver: sqlite3.Database,
     });
-    app.listen(PORT, "0.0.0.0", () => {
+    app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
     });    
   } catch (error) {
@@ -33,7 +33,7 @@ const initializeDbAndServer = async () => {
 
 initializeDbAndServer();
 
-app.get("/api/message/", async (request, response) => {
+app.get("/users/", async (request, response) => {
   const getMessageQuery = `
     SELECT * FROM user;
   `;
