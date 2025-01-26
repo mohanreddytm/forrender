@@ -1,6 +1,8 @@
 const express = require("express");
 const cors = require("cors");
 
+const bcrypt = require("bcrypt");
+
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -39,6 +41,27 @@ app.get("/users/", async (request, response) => {
   `;
   const messageArray = await db.all(getMessageQuery);
   response.send(messageArray);
+});
+
+app.post("/users/", async (request, response) => {
+  const {name, email, password} = request.body;
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const selectUserQuery = `
+    SELECT * FROM user WHERE email = '${email}';
+  `;
+  const dbUser = await db.get(selectUserQuery);
+  if (dbUser === undefined) {
+    const createUserQuery = `
+      INSERT INTO user (name, email, password)
+      VALUES ('${name}', '${email}', '${hashedPassword}');
+    `;
+    await db.run(createUserQuery);
+    response.send("User created successfully");
+  } else {
+    response.status(400);
+    response.send("User already exists");
+  }
+
 });
 
 module.exports = app;
