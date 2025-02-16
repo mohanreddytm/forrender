@@ -2,8 +2,10 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 
+const jwt = require("jsonwebtoken");
+
 const bcrypt = require("bcrypt");
-const { Pool } = require("pg"); // Changed from SQLite to PostgreSQL
+const { Pool } = require("pg");
 
 const app = express();
 app.use(cors());
@@ -11,22 +13,14 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 5000;
 
-// PostgreSQL connection setup
-
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }, // Required for Render
+  ssl: { rejectUnauthorized: false }, 
 });
 
-// ------------------------ Step 1: Database Setup Changes ------------------------
-// Removed SQLite-specific initialization
-// PostgreSQL connection is handled automatically by the pool
-
-// ------------------------ Step 2: Modified Routes ------------------------
-// Get all users
 app.get("/users/", async (request, response) => {
   try {
-    const result = await pool.query('SELECT * FROM public."user";'); // Quotes for reserved keyword
+    const result = await pool.query('SELECT * FROM public."user";'); 
     console.log(result.rows);
     response.json(result.rows);
   } catch (error) {
@@ -84,8 +78,15 @@ app.post("/login/", async (request, response) => {
     if (!isPasswordValid) {
       return response.status(400).send("Invalid password");
     }
+
+    const payload = {username: dbUser.email};
+
+    const jwtToken = jwt.sign(payload, "MY_SECRET_TOKEN");
+    response.json({ jwtToken });
     
-    response.send("Login success");
+    
+    
+
   } catch (error) {
     console.error("Login Error:", error);
     response.status(500).send("Login failed");
