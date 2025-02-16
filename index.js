@@ -84,9 +84,6 @@ app.post("/login/", async (request, response) => {
     const jwtToken = jwt.sign(payload, "MY_SECRET_TOKEN");
     response.json({ jwtToken });
     
-    
-    
-
   } catch (error) {
     console.error("Login Error:", error);
     response.status(500).send("Login failed");
