@@ -50,8 +50,11 @@ app.post("/users/", async (request, response) => {
       'INSERT INTO "user" (name, email, password) VALUES ($1, $2, $3);',
       [name, email, hashedPassword]
     );
+
+    const payload = {username: email};
     
-    response.send("User created successfully");
+    const jwtToken = jwt.sign(payload, "MY_SECRET_TOKEN", { expiresIn: "30d" });
+    response.json({ jwtToken });
   } catch (error) {
     console.error("POST Error:", error);
     response.status(500).send("Registration failed");
@@ -81,7 +84,7 @@ app.post("/login/", async (request, response) => {
 
     const payload = {username: dbUser.email};
 
-    const jwtToken = jwt.sign(payload, "MY_SECRET_TOKEN");
+    const jwtToken = jwt.sign(payload, "MY_SECRET_TOKEN", { expiresIn: "30d" });
     response.json({ jwtToken });
     
   } catch (error) {
