@@ -93,6 +93,34 @@ app.post("/login/", async (request, response) => {
   }
 });
 
+app.get("/cart/:userId", async (request, response) => {
+  const { userId } = request.params;
+  try {
+    const result = await pool.query('SELECT * FROM public."cart" WHERE user_id = $1;', [userId]);
+    console.log(result.rows);
+    response.json(result.rows);
+  } catch (error) {
+    console.error("GET Error:", error);
+    response.status(500).send("Server error");
+  }
+});
+
+
+app.post("/cart", async (req, res) => {
+  const { user_id, book_id, title, image, price, quantity } = req.body;
+  try {
+    await pool.query(
+      'INSERT INTO cart (user_id, book_id, title, image, price, quantity) VALUES ($1, $2, $3, $4, $5, $6);',
+      [user_id, book_id, title, image, price, quantity]
+    );
+    res.send("Item added to cart");
+  } catch (error) {
+    console.error("Cart Insert Error:", error);
+    res.status(500).send("Error adding item to cart");
+  }
+});
+
+
 // ------------------------ Step 3: Server Initialization ------------------------
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
