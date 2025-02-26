@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken");
 
 const bcrypt = require("bcrypt");
 const { Pool } = require("pg");
+require("dotenv").config();
 
 const app = express();
 app.use(cors());
@@ -15,7 +16,9 @@ const PORT = process.env.PORT || 5000;
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }, 
+  ssl: {
+    rejectUnauthorized: false, // Required for Neon
+  },
 });
 
 app.get("/users/", async (request, response) => {
