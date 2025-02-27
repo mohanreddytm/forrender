@@ -123,6 +123,47 @@ app.post("/cart", async (req, res) => {
   }
 });
 
+app.put("/cart/update", async (req, res) => {
+  const { user_id, book_id, quantity } = req.body;
+
+  try {
+    const result = await pool.query(
+      'UPDATE cart SET quantity = $1 WHERE user_id = $2 AND book_id = $3 RETURNING *;',
+      [quantity, user_id, book_id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).send("Item not found in cart");
+    }
+
+    res.json({ message: "Cart updated successfully", updatedItem: result.rows[0] });
+  } catch (error) {
+    console.error("Cart Update Error:", error);
+    res.status(500).send("Error updating cart");
+  }
+});
+
+app.delete("/cart/delete", async (req, res) => {
+  const { user_id, book_id } = req.body;
+
+  try {
+    const result = await pool.query(
+      'DELETE FROM cart WHERE user_id = $1 AND book_id = $2 RETURNING *;',
+      [user_id, book_id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).send("Item not found in cart");
+    }
+
+    res.json({ message: "Cart item deleted successfully" });
+  } catch (error) {
+    console.error("Cart Delete Error:", error);
+    res.status(500).send("Error deleting item from cart");
+  }
+});
+
+
 
 // ------------------------ Step 3: Server Initialization ------------------------
 app.listen(PORT, () => {
