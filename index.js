@@ -113,7 +113,7 @@ app.post("/cart", async (req, res) => {
   const { user_id, book_id, title, image, price, quantity } = req.body;
   try {
     await pool.query(
-      'INSERT INTO cart (user_id, book_id, title, image, price, quantity) VALUES ($1, $2, $3, $4, $5, $6);',
+      'INSERT INTO public."cart" (user_id, book_id, title, image, price, quantity) VALUES ($1, $2, $3, $4, $5, $6);',
       [user_id, book_id, title, image, price, quantity]
     );
     res.send("Item added to cart");
