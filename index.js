@@ -54,7 +54,7 @@ app.post("/users/", async (request, response) => {
       [name, email, hashedPassword]
     );
 
-    const payload = {username: email};
+    const payload = {username: dbUser.email,userId: dbUser.id,};
     
     const jwtToken = jwt.sign(payload, "MY_SECRET_TOKEN", { expiresIn: "30d" });
     response.json({ jwtToken });
