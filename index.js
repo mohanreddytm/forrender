@@ -54,7 +54,11 @@ app.post("/users/", async (request, response) => {
       [name, email, hashedPassword]
     );
 
-    const payload = {username: dbUser.email,userId: dbUser.id,};
+    const result = await pool.query('SELECT * FROM public."user" WHERE email = $1;', [email]);
+    const usersId = (result.rows[0].id);
+
+
+    const payload = {username: email, userId: usersId};
     
     const jwtToken = jwt.sign(payload, "MY_SECRET_TOKEN", { expiresIn: "30d" });
     response.json({ jwtToken });
