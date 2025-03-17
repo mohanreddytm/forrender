@@ -17,7 +17,7 @@ const PORT = process.env.PORT || 5000;
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
-    rejectUnauthorized: false, // Required for Neon
+    rejectUnauthorized: false,
   },
 });
 
@@ -116,11 +116,20 @@ app.get("/cart/:userId", async (request, response) => {
 app.post("/cart", async (req, res) => {
   const { user_id, book_id, title, image, price, quantity } = req.body;
   try {
-    await pool.query(
-      'INSERT INTO public."cart" (user_id, book_id, title, image, price, quantity) VALUES ($1, $2, $3, $4, $5, $6);',
-      [user_id, book_id, title, image, price, quantity]
-    );
-    res.send("Item added to cart");
+    const result = await pool.query('Select * from public."cart" where user_id = $1 and book_id = $2;', [user_id, book_id]);
+    if (result.rowCount > 0) {
+      await pool.query(
+        'UPDATE public."cart" SET quantity = quantity + 1 WHERE user_id = $1 AND book_id = $2;',
+        [user_id, book_id]
+      );
+    }else{
+      await pool.query(
+        'INSERT INTO public."cart" (user_id, book_id, title, image, price, quantity) VALUES ($1, $2, $3, $4, $5, $6);',
+        [user_id, book_id, title, image, price, quantity]
+      );
+    }
+    
+    res.json({ success: true, message: "Item added to cart" });
   } catch (error) {
     console.error("Cart Insert Error:", error);
     res.status(500).send("Error adding item to cart");
